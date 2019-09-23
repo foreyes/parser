@@ -6459,17 +6459,13 @@ IndexNameList:
 		var nameList []model.CIStr
 		$$ = nameList
 	}
-|	Identifier
-	{
-		$$ = []model.CIStr{model.NewCIStr($1)}
-	}
 |	IndexNameList ',' Identifier
 	{
 		$$ = append($1.([]model.CIStr), model.NewCIStr($3))
 	}
-|	"PRIMARY"
+|	IndexNameList ',' "PRIMARY"
 	{
-		$$ = []model.CIStr{model.NewCIStr($1)}
+		$$ = append($1.([]model.CIStr), model.NewCIStr($3))
 	}
 
 IndexHintList:
