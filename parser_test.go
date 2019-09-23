@@ -2793,12 +2793,12 @@ func (s *testParserSuite) TestErrorMsg(c *C) {
 func (s *testParserSuite) TestOptimizerHints(c *C) {
 	parser := parser.New()
 	// Test USE_INDEX
-	stmt, _, err := parser.Parse("select /*+ USE_INDEX(T1,T2), use_index(t3,t4) */ c1, c2 from t1, t2 where t1.c1 = t2.c1", "", "")
+	stmt, _, err := parser.Parse("select /*+ USE_INDEX(T1,T2), use_index(t3,t4), use_index(t, i1, i2, PRIMARY, i3) */ c1, c2 from t1, t2 where t1.c1 = t2.c1", "", "")
 	c.Assert(err, IsNil)
 	selectStmt := stmt[0].(*ast.SelectStmt)
 
 	hints := selectStmt.TableHints
-	c.Assert(hints, HasLen, 2)
+	c.Assert(hints, HasLen, 3)
 	c.Assert(hints[0].HintName.L, Equals, "use_index")
 	c.Assert(hints[0].Tables, HasLen, 1)
 	c.Assert(hints[0].Tables[0].TableName.L, Equals, "t1")
@@ -2810,6 +2810,15 @@ func (s *testParserSuite) TestOptimizerHints(c *C) {
 	c.Assert(hints[1].Tables[0].TableName.L, Equals, "t3")
 	c.Assert(hints[1].Indexes, HasLen, 1)
 	c.Assert(hints[1].Indexes[0].L, Equals, "t4")
+
+	c.Assert(hints[2].HintName.L, Equals, "use_index")
+	c.Assert(hints[2].Tables, HasLen, 1)
+	c.Assert(hints[2].Tables[0].TableName.L, Equals, "t")
+	c.Assert(hints[2].Indexes, HasLen, 4)
+	c.Assert(hints[2].Indexes[0].L, Equals, "i1")
+	c.Assert(hints[2].Indexes[1].L, Equals, "i2")
+	c.Assert(hints[2].Indexes[2].L, Equals, "primary")
+	c.Assert(hints[2].Indexes[3].L, Equals, "i3")
 
 	// Test IGNORE_INDEX
 	stmt, _, err = parser.Parse("select /*+ IGNORE_INDEX(T1,T2), ignore_index(t3,t4) */ c1, c2 from t1, t2 where t1.c1 = t2.c1", "", "")
