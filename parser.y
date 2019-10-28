@@ -6465,6 +6465,7 @@ TableFactor:
 		tn := $1.(*ast.TableName)
 		tn.PartitionNames = $2.([]model.CIStr)
 		tn.IndexHints = $4.([]*ast.IndexHint)
+		tn.AsName = $3.(model.CIStr)
 		$$ = &ast.TableSource{Source: tn, AsName: $3.(model.CIStr)}
 	}
 |	'(' SelectStmt ')' TableAsName

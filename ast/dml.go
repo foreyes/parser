@@ -178,6 +178,7 @@ type TableName struct {
 
 	Schema model.CIStr
 	Name   model.CIStr
+	AsName model.CIStr
 
 	DBInfo    *model.DBInfo
 	TableInfo *model.TableInfo
@@ -210,6 +211,10 @@ func (n *TableName) restorePartitions(ctx *RestoreCtx) {
 }
 
 func (n *TableName) restoreIndexHints(ctx *RestoreCtx) error {
+	if asName := n.AsName.String(); asName != "" {
+		ctx.WriteKeyWord(" AS ")
+		ctx.WriteName(asName)
+	}
 	for _, value := range n.IndexHints {
 		ctx.WritePlain(" ")
 		if err := value.Restore(ctx); err != nil {
@@ -403,8 +408,10 @@ func (n *TableSource) Restore(ctx *RestoreCtx) error {
 		tn.restorePartitions(ctx)
 
 		if asName := n.AsName.String(); asName != "" {
-			ctx.WriteKeyWord(" AS ")
-			ctx.WriteName(asName)
+			if _, ok := n.Source.(TableName); !ok {
+				ctx.WriteKeyWord(" AS ")
+				ctx.WriteName(asName)
+			}
 		}
 		if err := tn.restoreIndexHints(ctx); err != nil {
 			return errors.Annotate(err, "An error occurred while restore TableSource.Source.(*TableName).IndexHints")

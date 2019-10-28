@@ -123,6 +123,8 @@ func (tc *testDMLSuite) TestTableNameIndexHintsRestore(c *C) {
 
 		{"t tt use index for order by (`foo``bar`) ignore key for group by (`baz``1`, `xyz`)", "`t` AS `tt` USE INDEX FOR ORDER BY (`foo``bar`) IGNORE INDEX FOR GROUP BY (`baz``1`, `xyz`)"},
 		{"t as tt use index for order by (`foo``bar`) ignore key for group by (`baz``1`, `xyz`)", "`t` AS `tt` USE INDEX FOR ORDER BY (`foo``bar`) IGNORE INDEX FOR GROUP BY (`baz``1`, `xyz`)"},
+
+		{"t as t1 use index(`idx1`, `idx2`)", "`t` AS `t1` USE INDEX (`idx1`, `idx2`)"},
 	}
 	extractNodeFunc := func(node Node) Node {
 		return node.(*SelectStmt).From.TableRefs.Left
